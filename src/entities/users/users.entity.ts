@@ -13,4 +13,7 @@ export class Users extends BaseEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ nullable: true })
+  description: string;
 }
