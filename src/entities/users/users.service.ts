@@ -2,7 +2,8 @@ import { Users } from './users.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserParams, UpdateUserParams } from './types/users.type';
+import * as argon from 'argon2';
+import { CreateUserDto, UpdateUserDto } from './dtos/users.dtos';
 
 @Injectable()
 export class UsersService {
@@ -14,14 +15,25 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  createUser(createUserParams: CreateUserParams) {
+  async createUser(createUserRequestBody: CreateUserDto) {
     const newUser = this.userRepository.create({
-      ...createUserParams,
+      username: createUserRequestBody.username,
+      password: await argon.hash(createUserRequestBody.password),
     });
-    return this.userRepository.save(newUser);
+
+    this.userRepository.save(newUser);
   }
 
-  updateUser(id: number, updateUserParams: UpdateUserParams) {
-    return this.userRepository.update({ id }, { ...updateUserParams });
+  async updateUser(id: number, updateUserRequestBody: UpdateUserDto) {
+    this.userRepository.update(id, {
+      ...updateUserRequestBody,
+      password: updateUserRequestBody.password
+        ? await argon.hash(updateUserRequestBody.password)
+        : undefined,
+    });
+  }
+
+  deleteUser(id: number) {
+    this.userRepository.delete(id);
   }
 }

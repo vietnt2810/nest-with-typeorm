@@ -1,15 +1,15 @@
-import { CreateUserDto } from './dtos/createUser.dto';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto } from './dtos/users.dtos';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dtos/updateUser.dto';
 
 @Controller('users')
 export class UsersController {
@@ -22,6 +22,7 @@ export class UsersController {
   @Post('create')
   createUser(@Body() createUserDto: CreateUserDto) {
     this.usersService.createUser(createUserDto);
+
     return 'Created new user successfully';
   }
 
@@ -31,5 +32,14 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     this.usersService.updateUser(id, updateUserDto);
+
+    return 'Updated new user successfully';
+  }
+
+  @Delete(':id')
+  deleteUserById(@Param('id', ParseIntPipe) id: number) {
+    this.usersService.deleteUser(id);
+
+    return 'Deleted user successfully';
   }
 }
